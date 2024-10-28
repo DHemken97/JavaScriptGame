@@ -1,6 +1,4 @@
-import Resources from "./Resources.js";
-
-export class entity {
+export class Entity {
 
     constructor(spriteSheet,x,y,width,height,sprite_width,sprite_height,numberOfFrames){
         this.x = x;
@@ -22,20 +20,58 @@ export class entity {
         this.inverse = false;
         this.animationSpeed = 0.1;
         this.isDead = false;
-        this.remove = false
+        this.remove = false;
+        this.hasGravity = false;
+        this.isOnPlatform = false;
+
        }
 
-        Update(){
+        update(){
+
+            this.calculateFrameUpdates();
+            this.calculateVelocityUpdates();
+            this.calculatePositionUpdates();
+
+
+        }
+
+
+        calculateFrameUpdates(){
             this.frame += this.animationSpeed;
             if (this.frame >= this.maxFrames)
-               {
-                this.frame = 0;
+            {
+                this.onFrameOverload();
             }
+        }
+        calculateVelocityUpdates(){
+            if (this.x > this.max_X) {
+                this.x = this.max_X;
+                this.handleBoundaryCollision();
+            }
+            if (this.x < this.min_X) {
+                this.x = this.min_X;                
+                this.handleBoundaryCollision();
+            }
+            if (this.y > this.max_Y) {
+                this.y = this.max_Y;
+                this.velocity_y = 0;        
+            }
+            else if (this.hasGravity) {
+                //gravity
+                this.velocity_y += 0.5;
+            }
+            if (this.y < this.min_Y) {
+                this.y = this.min_Y;
+                this.velocity_y = 0;
+            }
+        }
+        calculatePositionUpdates(){
 
             this.x += this.velocity_x;
             this.y += this.velocity_y;
         }
-        DrawFrame(canvasCtx){
+
+        drawFrame(canvasCtx){
             let position = Math.floor(this.frame),
             s_height = this.sprite_height,
             s_width = this.sprite_width,
@@ -67,7 +103,17 @@ export class entity {
         canvasCtx.restore(); // Restore the context state to avoid affecting other drawings
     
         }
-
+        isOnGround() {
+            return this.y >= this.max_Y || this.isOnPlatform;
+        }
+        onFrameOverload(){
+            this.frame = 0;
+        }
+    
+        handleBoundaryCollision(){
+            console.log("overwrite this method",this)
+           }
+    
 
 }
 

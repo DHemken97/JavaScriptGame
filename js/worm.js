@@ -1,7 +1,7 @@
-import { entity } from "./entity.js";
+import { Entity } from "./entity.js";
 import Resources from "./Resources.js";
 
-export class worm extends entity{
+export class worm extends Entity{
 
     constructor(x,y){
         let width = 32,
@@ -12,20 +12,17 @@ export class worm extends entity{
 
         super(Resources.WormSheet,x,y,width,height,sprite_width,sprite_height,numberOfFrames)
         this.min_X = x;
-        this.max_X = x+150;
+        this.max_X =Math.min(600-width, x+150);
         this.velocity_x =  this.getRandomFloat(0.5, 2.5);
         this.inverse = true;
+        this.hasGravity = true;
 
        }
 
-       Update(){
-        super.Update()
+       update(){
+        super.update()
        
-        if (this.x>this.max_X || this.x<this.min_X)
-            {
-                this.velocity_x = -this.velocity_x;
-                this.inverse = !this.inverse;
-            }
+
 
 
 
@@ -40,7 +37,10 @@ export class worm extends entity{
         getRandomFloat(min, max) {
         return Math.random() * (max - min) + min;
     }
-
+    handleBoundaryCollision(){
+        this.velocity_x = -this.velocity_x;
+        this.inverse = !this.inverse;
+       }
     
     die(){
         if (this.isDead) return;
@@ -48,6 +48,7 @@ export class worm extends entity{
         this.spriteSheet = Resources.BoomSheet;
         this.frame = 0; 
         this.maxFrames = 5;
+        this.sprite_width = 200;
 
     }
 

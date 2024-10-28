@@ -1,5 +1,7 @@
+import { Player } from "./player.js";
+
 export class CollisionEngine {
-    constructor(entities,player) {
+    constructor(entities, player) {
         this.entities = entities; // Array to store all entities that need collision detection
         this.player = player;
         this.addEntity(player);
@@ -25,7 +27,7 @@ export class CollisionEngine {
     }
 
     // Update method to check for collisions
-    update() {
+    update(game) {
         // Loop through all pairs of entities
         for (let i = 0; i < this.entities.length; i++) {
             for (let j = i + 1; j < this.entities.length; j++) {
@@ -35,25 +37,53 @@ export class CollisionEngine {
                 // Check if entityA and entityB are colliding
                 if (this.isColliding(entityA, entityB)) {
                     // Call custom collision handling if a collision is detected
-                    this.handleCollision(entityA, entityB);
+                    this.handleCollision(entityA, entityB, game);
                 }
             }
         }
     }
 
     // Basic collision handling (you could customize this)
-    handleCollision(entityA, entityB) {
-        // Example collision response: Stop movement on collision
-        entityA.velocity_x = 0;
-        entityA.velocity_y = 0;
-        entityB.velocity_x = 0;
-        entityB.velocity_y = 0;
-        
-        if (entityB.IsOnGround() && !entityA.isDead)
-        entityB.SetAnimation(8);
-    else
-    entityA.die();
+    handleCollision(entityA, entityB, game) {
 
-        console.log(`${entityA.constructor.name} collided with ${entityB.constructor.name}`);
+
+        if (entityA instanceof Player) {
+            this.p = entityA
+            this.e = entityB
+        }
+        else if (entityB instanceof Player) {
+            this.p = entityB
+            this.e = entityA
+        }
+        else {
+            //enemy on enemy 
+            return;
+        }
+
+        if (this.e.isDead) return;
+
+
+        if (this.e.isSolid)
+            {
+                this.p.handleObjectCollision()
+                return;
+            }
+        this.e.velocity_x = 0;
+        this.e.velocity_y = 0;
+        this.p.velocity_x = 0;
+        this.p.velocity_y = 0;
+
+        if (this.p.isOnGround() && !this.p.attackMode && !this.e.isDead)
+            this.p.setAnimation(8);
+        else {
+            this.e.die();
+            game.score++;
+        }
+
+        //If player is above enemy I want to add an extra little jump
+
+        if (this.p.y < this.e.y && !this.p.isOnGround())
+            this.p.velocity_y = -10;
+        //        console.log(`${this.e.constructor.name} collided with ${ this.p.constructor.name}`);
     }
 }

@@ -1,7 +1,7 @@
-import { entity } from "./entity.js";
+import { Entity } from "./entity.js";
 import Resources from "./Resources.js";
 
-export class Raven extends entity{
+export class Raven extends Entity{
 
     constructor(x,y){
         let width = 64,
@@ -14,22 +14,39 @@ export class Raven extends entity{
        
 
         this.min_X = x;
-        this.max_X = x+250;
+        this.max_X =Math.min(600-width, x+250);
         this.velocity_x = 2;
         this.inverse = true;
+        this.hasGravity = false;
 
        }
 
 
-       Update(){
-        super.Update()
+       update(){
+        super.update()
+                   
+            if (this.isDead && this.frame >4)
+                {
+                   this.animationSpeed =0;
+                   this.remove = true;
+                }
+       }
+
        
-        if (this.x>this.max_X || this.x<this.min_X)
-            {
-                this.velocity_x = -this.velocity_x;
-                this.inverse = !this.inverse;
-            }
+       handleBoundaryCollision(){
+        this.velocity_x = -this.velocity_x;
+        this.inverse = !this.inverse;
        }
+
+       die(){
+        if (this.isDead) return;
+        this.isDead = true;
+        this.spriteSheet = Resources.BoomSheet;
+        this.frame = 0; 
+        this.maxFrames = 5;
+        this.sprite_width = 200;
+
+    }
 
      
 

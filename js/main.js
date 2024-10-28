@@ -7,7 +7,7 @@ window.addEventListener("load",e => {
 })
 
 function step(){
-    GAME.Update();
-    GAME.DrawFrame()
+    GAME.update();
+    GAME.drawFrame()
     requestAnimationFrame(step);
 }
