@@ -1,26 +1,26 @@
+import Resources from "./Resources.js";
+
 export class Player {
-
-
 
     constructor() {
         this.x = 0;
         this.y = 0;
         this.velocity_x = 0;
         this.velocity_y = 0;
-        this.width = 100;
-        this.height = 100;
+        this.width = 50;
+        this.height = 50;
         this.max_X = 600 - this.width;
         this.max_Y = 600 - this.height;
         this.min_X = 0;
         this.min_Y = 0;
         this.frame = 1;
-        this.playerSpriteSheet = new Image();
-        this.playerSpriteSheet.src = "./img/shadow_dog.png";
+        this.playerSpriteSheet = Resources.PlayerSheet;
         this.maxFrames = 7;
         this.animationSet = 0;
         this.inverse = false;
         this.animationSpeed = 0.1;
         this.ignoreInput = false;
+        this.isDead = false;
     }
 
     DrawFrame(canvasCtx) {
@@ -58,7 +58,7 @@ export class Player {
 
 
     Update(game) {
-
+        if (this.isDead) return;
         let keys = game.controller.pressedKeys;
         if (!this.ignoreInput)
         {
@@ -101,14 +101,26 @@ export class Player {
 
     
         this.frame += this.animationSpeed;
-        if (this.frame > this.maxFrames)
+        if (this.frame >= this.maxFrames)
            {
-            this.frame = 0;
             if (this.animationSet === 9)
             {
                 this.ignoreInput = false;
                 this.SetAnimation(0)
+                this.frame = 0;
             }
+            else if (this.animationSet === 8)
+                {
+                    this.animationSpeed=0
+                    this.ignoreInput = false;
+                    this.isDead = true;
+                    console.log("Dead")
+                }
+            else
+           {
+            this.frame = 0;
+           } 
+
            } 
 
         this.x += this.velocity_x;
@@ -117,14 +129,14 @@ export class Player {
         if (this.x > this.max_X) {
             this.x = this.max_X;
                                     //hurt and push back
-            this.velocity_x = -3;
+            this.velocity_x = -1;
             this.SetAnimation(9);
             game.score++;
         }
         if (this.x < this.min_X) {
             this.x = this.min_X;
                         //hurt and push back
-            this.velocity_x = 3;
+            this.velocity_x = 1;
             this.SetAnimation(9);
             game.score++;
         }
@@ -150,12 +162,16 @@ export class Player {
 
 
     SetAnimation(val) {
-
+        
         if (this.animationSet === val) return;
+        if (this.animationSet === 8) return;
+        if (this.isDead) return;
+        
         this.animationSet = val;
         if (this.animationSet > 9)
             this.animationSet = 0;
 
+        if (this.animationSpeed>0)
         this.animationSpeed = .1;
 
         switch (this.animationSet) {
@@ -185,7 +201,7 @@ export class Player {
                 this.maxFrames = 7
                 break;
             case 8://die?
-                this.maxFrames = 12
+                this.maxFrames = 11
                 break;
             case 9:
                 this.maxFrames = 4
@@ -195,8 +211,6 @@ export class Player {
 
         }
 
-        if (this.frame > this.maxFrames)
-            this.frame = 0;
 
     }
 }
